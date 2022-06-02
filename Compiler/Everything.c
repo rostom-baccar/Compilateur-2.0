@@ -23,9 +23,7 @@ void main()
         print(e);
         fun2(e, d);
     }
-    while (false){
-        print(c);
-    }
+    while (false){ print(c); }
     while (a > b + c){
         int ld = 50;
         int le;

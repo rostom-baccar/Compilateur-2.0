@@ -15,6 +15,7 @@ int varBool=0;
 int countFUNCTION=0;
 int countArgs=0;
 int argsDeclared=0;
+int error=0;
 condition ifCond;
 condition whileCond;
 condition elseCond;
@@ -61,7 +62,6 @@ Main: tVOID tMAIN tPO tPF tAO Body tAF{
 
 Functions: Function | Function Functions;
 
-//INT MAIN AND VOID MAIN ARE BOTH POSSIBLE AND MEAN THE SAME THING
 //DELETED FUNNAME AND ADDED 3 DIFFERENT CASES TO ADD JMP INSTRUCTIONS AT THE END OF FUNCTIONS OTHER THAN MAIN
 Function: tINT tID tPO{
   incrementDepth("FUNCTION");
@@ -121,7 +121,7 @@ FunCall: tID { strcpy(funName , $1); }  tPO{strcpy(funName,$1);} CallArgs tPF {
 DecArgs: tINT tID{
   
   argsDeclared++;
-  //ADDING DECLARATED VARIABLES IN ()
+  //ADDING DECLARED VARIABLES IN ()
   symbol local = addSymbol(st,$2,1);
   //instruction i = addInstruction(it,"COP",getAddrName(st,$3),sTableSize-1,-1);
   instruction i = addInstruction(it,"COP",local.addr,findPassedParameter(pt,funName,countArgs),-1);
@@ -334,6 +334,7 @@ VarAssign : tID tEQUAL Operand tPV {
     printf("VAR ASSIGN FOUND \n");
     if (getAddrName(st,$1)==-1){
       printf("ERROR: Variable %s not declared! \n",$1);
+      error=1;
     }
     else{
      printf("Depth of the variable %s is %d\n",$1,getSymbolByName(st,$1).depth); 
@@ -361,7 +362,10 @@ VarAssign : tID tEQUAL Operand tPV {
       print_sTable(st);
       unstack(st);
       }
-    } else {printf("ERROR: RE-ASSIGNING A CONSTANT IS NOT POSSIBLE\n");}
+    } else {
+      printf("ERROR: RE-ASSIGNING A CONSTANT IS NOT POSSIBLE\n");
+      error=1;
+      }
   }
 };
 
@@ -523,6 +527,8 @@ int main(void) {
   yyparse();
   printf("END OF PARSER \n");
 
+  if (error!=1){
+
   print_sTable(st);
 
   print_iTable(it); 
@@ -538,5 +544,7 @@ int main(void) {
   printInterpreter();
 
   fclose (ASM);
+  
+  }
   return 0;
 }
